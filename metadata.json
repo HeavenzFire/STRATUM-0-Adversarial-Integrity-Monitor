@@ -1,0 +1,5 @@
+{
+  "name": "STRATUM-0: Adversarial Integrity Monitor",
+  "description": "A high-precision system simulator for validating architectural integrity under extreme constraint density and adversarial load shapes.",
+  "requestFramePermissions": []
+}
