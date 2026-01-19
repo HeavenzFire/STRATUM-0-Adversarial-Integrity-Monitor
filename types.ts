@@ -16,7 +16,7 @@ export interface SystemMetrics {
   refusalCount: number;
   errorCount: number; 
   timestamp: number;
-  routingOverhead: number; // New: Cost of orchestration
+  routingOverhead: number;
 }
 
 export interface Task {
@@ -24,7 +24,14 @@ export interface Task {
   complexity: number;
   startTime: number;
   status: 'PENDING' | 'EXECUTING' | 'COMPLETED' | 'REFUSED' | 'FAILED';
-  assignedNode?: 'PRIMARY_PRO' | 'EDGE_FLASH'; // New: Orchestration routing
+  assignedNode?: 'PRIMARY_PRO' | 'EDGE_FLASH';
+}
+
+export interface DecisionLogEntry {
+  timestamp: number;
+  action: string;
+  reason: string;
+  isAutoAudit?: boolean;
 }
 
 export interface TickTrace {
@@ -51,8 +58,10 @@ export interface SimulationConfig {
   isAccelerated: boolean;
   isAutoAdvancing: boolean;
   phaseTickCounter: number;
-  isRecording: boolean; // New: Trace recording
-  isReplaying: boolean; // New: Trace replay
+  isRecording: boolean;
+  isReplaying: boolean;
+  isAutopilot: boolean;
+  isSelfHealing: boolean; // New: Automatic remediation
   activeTraceId?: string;
 }
 
@@ -61,4 +70,5 @@ export interface AuditReport {
   summary: string;
   invalidTransitionRisks: string[];
   recommendation: string;
+  autoApplied?: boolean;
 }

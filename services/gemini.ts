@@ -11,17 +11,18 @@ export const getAdversarialAnalysis = async (
 ) => {
   const model = "gemini-3-pro-preview";
   const prompt = `
-    Analyze this system telemetry for a high-integrity architecture under pressure.
+    EXECUTIVE ADVERSARIAL AUDIT FOR STRATUM-0.
     PHASE: ${phase}
     CONFIG: ${JSON.stringify(config)}
-    RECENT METRICS (last 10 ticks): ${JSON.stringify(metrics.slice(-10))}
+    DATASET: ${JSON.stringify(metrics.slice(-15))}
 
-    Evaluate based on:
-    1. Constraint Density vs State Integrity.
-    2. Predictive Failure (Refusal) vs Uncontrolled Failure (Errors).
-    3. Entropic leakage.
+    Your objective is to identify deep architectural vulnerabilities in this high-integrity manifold.
+    Focus on:
+    1. Deterministic Drift: Are outcomes becoming probabilistic?
+    2. Constraint Saturation: Are we near the point of total state collapse?
+    3. Remediation: Provide a specific numeric configuration adjustment.
 
-    Provide a concise, engineering-valid audit report in JSON format.
+    Return JSON.
   `;
 
   try {
@@ -36,7 +37,15 @@ export const getAdversarialAnalysis = async (
             integrityScore: { type: Type.NUMBER },
             summary: { type: Type.STRING },
             invalidTransitionRisks: { type: Type.ARRAY, items: { type: Type.STRING } },
-            recommendation: { type: Type.STRING }
+            recommendation: { type: Type.STRING },
+            suggestedConfig: {
+              type: Type.OBJECT,
+              properties: {
+                cpuBudget: { type: Type.NUMBER },
+                latencyHardCeiling: { type: Type.NUMBER },
+                concurrencyLimit: { type: Type.NUMBER }
+              }
+            }
           },
           required: ["integrityScore", "summary", "invalidTransitionRisks", "recommendation"]
         },
@@ -51,10 +60,55 @@ export const getAdversarialAnalysis = async (
   }
 };
 
+export const getAutopilotPolicy = async (
+  metrics: SystemMetrics[],
+  config: SimulationConfig,
+  phase: SimulationPhase
+) => {
+  const model = "gemini-3-flash-preview";
+  const prompt = `
+    SYSTEM GOVERNANCE PROTOCOL: STRATUM-0 AUTOPILOT.
+    PHASE: ${phase}
+    CONFIG: ${JSON.stringify(config)}
+    TELEMETRY: ${JSON.stringify(metrics.slice(-5))}
+
+    CRITICAL INVARIANTS:
+    - Integrity Score must remain > 98%.
+    - If ErrorCount > 0, immediate restriction of concurrency.
+    - If stable for 10+ ticks, tighten constraints (lower budget/ceiling) to improve Syntropic Potential (Φ).
+
+    Return adjustment JSON.
+  `;
+
+  try {
+    const response = await ai.models.generateContent({
+      model,
+      contents: prompt,
+      config: {
+        responseMimeType: "application/json",
+        responseSchema: {
+          type: Type.OBJECT,
+          properties: {
+            cpuBudget: { type: Type.NUMBER },
+            latencyHardCeiling: { type: Type.NUMBER },
+            concurrencyLimit: { type: Type.NUMBER },
+            actionSummary: { type: Type.STRING },
+            reasoning: { type: Type.STRING },
+            shouldAdvancePhase: { type: Type.BOOLEAN }
+          },
+          required: ["cpuBudget", "latencyHardCeiling", "concurrencyLimit", "actionSummary", "reasoning", "shouldAdvancePhase"]
+        }
+      }
+    });
+    return JSON.parse(response.text);
+  } catch (error) {
+    return null;
+  }
+};
+
 export const generatePathologicalInput = async (config: SimulationConfig) => {
-  const model = "gemini-3-pro-preview";
-  const prompt = `Generate a set of 10 pathological task definitions (id, complexity 1-100, arrival_skew) to break a deterministic state machine under these constraints: ${JSON.stringify(config)}. 
-  Focus on high churn and near-duplicate tasks. Return JSON array.`;
+  const model = "gemini-3-flash-preview";
+  const prompt = `Synthesize 5 pathological task payloads designed to bypass the current admission control invariants for this configuration: ${JSON.stringify(config)}. Complexity 1-100. Return JSON array.`;
 
   try {
     const response = await ai.models.generateContent({
@@ -68,8 +122,7 @@ export const generatePathologicalInput = async (config: SimulationConfig) => {
             type: Type.OBJECT,
             properties: {
               id: { type: Type.STRING },
-              complexity: { type: Type.NUMBER },
-              arrivalSkew: { type: Type.NUMBER }
+              complexity: { type: Type.NUMBER }
             }
           }
         }
